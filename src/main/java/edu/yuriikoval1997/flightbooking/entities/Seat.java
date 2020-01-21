@@ -22,5 +22,10 @@ public class Seat {
     @ManyToOne
     @JoinColumn(name = "booking_id", referencedColumnName = "id")
     private Booking booking;
+
+    public Seat(Short seatRow, Short seatCol) {
+        this.seatRow = seatRow;
+        this.seatCol = seatCol;
+    }
 }
 

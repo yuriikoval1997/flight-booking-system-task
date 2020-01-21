@@ -2,13 +2,11 @@ package edu.yuriikoval1997.flightbooking.entities;
 
 import java.util.List;
 import javax.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "bookings")
 public class Booking {
@@ -21,8 +19,14 @@ public class Booking {
     private Flight flight;
 
     @Column(name = "price", nullable = false)
-    private Short price;
+    private Integer price;
 
     @OneToMany(mappedBy = "booking")
     private List<Seat> seats;
+
+    public Booking(Flight flight, Integer price, List<Seat> seats) {
+        this.flight = flight;
+        this.price = price;
+        this.seats = seats;
+    }
 }

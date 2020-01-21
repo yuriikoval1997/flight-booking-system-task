@@ -3,16 +3,27 @@ package edu.yuriikoval1997.flightbooking.services;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
+import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
+import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
+import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
+import edu.yuriikoval1997.flightbooking.repository.FlightRepositoryImpl;
 import java.util.Arrays;
+import org.hibernate.SessionFactory;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@SpringBootTest
 class ReservationServiceForAirbusA320Test {
 
     private static int[][] testSeatPlan;
+
+    @Autowired
     private ReservationService reservationService;
 
     @BeforeAll
@@ -44,7 +55,7 @@ class ReservationServiceForAirbusA320Test {
 
     @BeforeEach
     void setUp() {
-        reservationService = new ReservationServiceForAirbusA320();
+//        reservationService = new ReservationServiceForAirbusA320();
     }
 
     @Test
