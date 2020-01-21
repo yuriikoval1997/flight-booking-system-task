@@ -7,41 +7,54 @@ import java.util.List;
 public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
 
     @Override
-    public List<Integer> findSuitableRows(int seatsInRow) {
+    public List<Integer> suitableSeats(int seatsInRow) {
         return List.of(0, seatsInRow - 1);
     }
 
     @Override
-    public List<Integer> findSuitableSeats(int[] row, int seatCount) {
-        List<Integer> booked = new ArrayList<>(seatCount);
+    public List<Integer> findConsecutiveSeats(int[] row, int seatCount) {
         int corridor = row.length / 2;
+        List<Integer> left = searchLeft(row, seatCount, corridor);
+        if (left.size() == seatCount) {
+            return left;
+        }
+        List<Integer> right = searchRight(row, seatCount, corridor);
+        if (right.size() == seatCount) {
+            return right;
+        }
+        return Collections.emptyList();
+    }
+
+    private List<Integer> searchLeft(int[] row, int seatCount, int corridor) {
+        List<Integer> forBooking = new ArrayList<>(seatCount);
         int i = 0;
-        while (i < corridor && booked.size() < seatCount) {
+        while (i < corridor && forBooking.size() < seatCount) {
             if (row[i] == 0) {
-                booked.add(i);
+                forBooking.add(i);
             } else {
-                booked.clear();
+                forBooking.clear();
             }
             i++;
         }
-
-        if (booked.size() == seatCount) {
-            return Collections.unmodifiableList(booked);
-        } else {
-            booked.clear();
+        if (forBooking.contains(0)) {
+            return Collections.unmodifiableList(forBooking);
         }
+        return Collections.emptyList();
+    }
 
-        i = row.length - 1;
-        while (i > corridor && booked.size() < seatCount) {
+    private List<Integer> searchRight(int[] row, int seatCount, int corridor) {
+        List<Integer> forBooking = new ArrayList<>();
+        int i = row.length - 1;
+        while (i > corridor && forBooking.size() < seatCount) {
             if (row[i] == 0) {
-                booked.add(i);
+                forBooking.add(i);
             } else {
-                booked.clear();
+                forBooking.clear();
             }
             i--;
         }
-        if (booked.size() == seatCount) {
-            return Collections.unmodifiableList(booked);
+        if (forBooking.contains(row.length - 1)) {
+            return Collections.unmodifiableList(forBooking);
         }
         return Collections.emptyList();
     }

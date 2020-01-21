@@ -35,7 +35,6 @@ class ReservationServiceForAirbusA320Test {
         for (int i = 4; i < 39; i++) {
             testSeatPlan[i] = new int[7];
         }
-
         for (int i = 0; i < testSeatPlan.length; i++) {
             int corridor = testSeatPlan[i].length/2;
             for (int j = 0; j < testSeatPlan[i].length; j++) {
@@ -61,14 +60,14 @@ class ReservationServiceForAirbusA320Test {
     @Test
     @DisplayName("Reserve 2 seats in the business class")
     void reserveSeatsInBusinessClass() {
-        boolean res = reservationService.reserveSeats(2, BUSINESS, NONE, testSeatPlan);
+        boolean res = reservationService.reserveSeats(2, BUSINESS, AISLE, testSeatPlan);
         assertTrue(res);
     }
 
     @Test
     @DisplayName("Reserve 2 seats in the economy class")
     void reserveSeatsInEconomyClass() {
-        boolean res = reservationService.reserveSeats(2, ECONOMY, NONE, testSeatPlan);
+        boolean res = reservationService.reserveSeats(2, ECONOMY, AISLE, testSeatPlan);
         assertTrue(res);
     }
 }

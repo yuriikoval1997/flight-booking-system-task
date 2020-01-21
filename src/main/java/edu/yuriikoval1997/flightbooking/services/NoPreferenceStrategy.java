@@ -9,14 +9,14 @@ import java.util.stream.IntStream;
 public class NoPreferenceStrategy implements SeatPreferenceStrategy {
 
     @Override
-    public List<Integer> findSuitableRows(int seatsInRow) {
+    public List<Integer> suitableSeats(int seatsInRow) {
         return IntStream.range(0, seatsInRow)
             .boxed()
             .collect(Collectors.toList());
     }
 
     @Override
-    public List<Integer> findSuitableSeats(int[] row, int seatCount) {
+    public List<Integer> findConsecutiveSeats(int[] row, int seatCount) {
         List<Integer> booked = new ArrayList<>(seatCount);
         int i = 0;
         while (i < row.length && booked.size() < seatCount) {
