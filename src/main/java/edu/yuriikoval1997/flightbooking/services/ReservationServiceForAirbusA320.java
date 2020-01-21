@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Slf4j
+@Service
 public class ReservationServiceForAirbusA320 implements ReservationService {
 
     private final AircraftRepository aircraftRepository;
@@ -39,9 +41,9 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
 
     // Flight class filtering strategies
     private final Supplier<List<Integer>> getBusinessClassRows =
-        () -> IntStream.range(0, 4).boxed().collect(Collectors.toList());
+        () -> IntStream.rangeClosed(0, 3).boxed().collect(Collectors.toList());
     private final Supplier<List<Integer>> getEconomyClassRows =
-        () -> IntStream.range(4, 39).boxed().collect(Collectors.toList());
+        () -> IntStream.rangeClosed(4, 38).boxed().collect(Collectors.toList());
 
     // Flight preference filtering strategy
     private final SeatPreferenceStrategy noPreference = new NoPreferenceStrategy();
