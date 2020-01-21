@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class AislePreferenceStrategy implements SeatPreferenceStrategy {
 
     @Override
-    public List<Integer> suitableSeats(int seatsInRow) {
-        return List.of(seatsInRow/2 - 1, seatsInRow/2 + 1);
+    public Stream<Integer> suitableSeats(int seatsInRow) {
+        return Stream.of(seatsInRow/2 - 1, seatsInRow/2 + 1);
     }
 
     @Override

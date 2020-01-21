@@ -1,10 +1,11 @@
 package edu.yuriikoval1997.flightbooking.services;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface SeatPreferenceStrategy {
 
-    List<Integer> suitableSeats(int seatsInRow);
+    Stream<Integer> suitableSeats(int seatsInRow);
 
     List<Integer> findConsecutiveSeats(int[] row, int seatCount);
 

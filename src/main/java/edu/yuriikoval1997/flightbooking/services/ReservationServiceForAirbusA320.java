@@ -11,8 +11,6 @@ import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
 import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
 import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -41,17 +39,15 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
     }
 
     // Flight class filtering strategies
-    private final Supplier<List<Integer>> getBusinessClassRows =
-        () -> IntStream.rangeClosed(0, 3).boxed().collect(Collectors.toList());
-    private final Supplier<List<Integer>> getEconomyClassRows =
-        () -> IntStream.rangeClosed(4, 38).boxed().collect(Collectors.toList());
+    private final Supplier<Stream<Integer>> getBusinessClassRows = () -> IntStream.rangeClosed(0, 3).boxed();
+    private final Supplier<Stream<Integer>> getEconomyClassRows = () -> IntStream.rangeClosed(4, 38).boxed();
 
     // Flight preference filtering strategy
     private final SeatPreferenceStrategy noPreference = new NoPreferenceStrategy();
     private final SeatPreferenceStrategy windowPreference = new WindowPreferenceStrategy();
     private final SeatPreferenceStrategy aislePreference = new AislePreferenceStrategy();
 
-    private Supplier<List<Integer>> selectFlightClassStrategy(int bookingClass) {
+    private Supplier<Stream<Integer>> selectFlightClassStrategy(int bookingClass) {
         switch (bookingClass) {
             case BUSINESS: return getBusinessClassRows;
             case ECONOMY: return getEconomyClassRows;
@@ -73,13 +69,10 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
      */
     @Override
     public boolean reserveSeats(int seatCount, int bookingClass, int bookingPreference, int[][] seatPlan) {
-        Supplier<List<Integer>> classStrategy = selectFlightClassStrategy(bookingClass);
+        Supplier<Stream<Integer>> classStrategy = selectFlightClassStrategy(bookingClass);
         SeatPreferenceStrategy preferenceStrategy = selectPreferenceSeatStrategy(bookingPreference);
 
-        // Filter by preference
-        List<Integer> suitableRows = filterByClassAndPreference(seatPlan, classStrategy, preferenceStrategy::suitableSeats);
-
-        return suitableRows.stream()
+        return filterByClassAndPreference(seatPlan, classStrategy, preferenceStrategy::suitableSeats)
             .flatMap(rowIndex -> Stream.of(preferenceStrategy.findConsecutiveSeats(seatPlan[rowIndex], seatCount))
                 .filter(preferenceStrategy::isNotEmpty)
                 .map(seatsForBooking -> {
@@ -91,23 +84,14 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             .orElse(false);
     }
 
-    private List<Integer> filterByClassAndPreference(final int[][] seatPlan,
-                                                     final Supplier<List<Integer>> classStrategy,
-                                                     final IntFunction<List<Integer>> preferenceStrategy) {
-        List<Integer> list = new ArrayList<>();
-        for (int rowIndex : classStrategy.get()) {
-            boolean available = false;
-            for (int seatIndex : preferenceStrategy.apply(seatPlan[rowIndex].length)) {
-                if (seatPlan[rowIndex][seatIndex] == 0) {
-                    available = true;
-                    break;
-                }
-            }
-            if (available) {
-                list.add(rowIndex);
-            }
-        }
-        return Collections.unmodifiableList(list);
+    private Stream<Integer> filterByClassAndPreference(final int[][] seatPlan,
+                                                       final Supplier<Stream<Integer>> classStrategy,
+                                                       final IntFunction<Stream<Integer>> preferenceStrategy) {
+        return classStrategy.get()
+            .flatMap(rowIndex -> preferenceStrategy.apply(seatPlan[rowIndex].length)
+                .filter(seatIndex -> seatPlan[rowIndex][seatIndex] == 0)
+                .map(ignored -> rowIndex)
+            );
     }
 
     private void makeReservation(final int rowIndex, List<Integer> toReserve) {

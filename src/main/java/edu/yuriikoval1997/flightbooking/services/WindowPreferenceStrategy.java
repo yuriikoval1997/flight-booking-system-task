@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
 
     @Override
-    public List<Integer> suitableSeats(int seatsInRow) {
-        return List.of(0, seatsInRow - 1);
+    public Stream<Integer> suitableSeats(int seatsInRow) {
+        return Stream.of(0, seatsInRow - 1);
     }
 
     @Override

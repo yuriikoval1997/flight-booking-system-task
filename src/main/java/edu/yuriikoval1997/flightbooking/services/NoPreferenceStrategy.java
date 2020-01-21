@@ -3,16 +3,14 @@ package edu.yuriikoval1997.flightbooking.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class NoPreferenceStrategy implements SeatPreferenceStrategy {
 
     @Override
-    public List<Integer> suitableSeats(int seatsInRow) {
-        return IntStream.range(0, seatsInRow)
-            .boxed()
-            .collect(Collectors.toList());
+    public Stream<Integer> suitableSeats(int seatsInRow) {
+        return IntStream.range(0, seatsInRow).boxed();
     }
 
     @Override
