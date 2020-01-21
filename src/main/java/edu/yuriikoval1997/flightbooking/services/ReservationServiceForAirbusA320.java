@@ -10,7 +10,9 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ReservationServiceForAirbusA320 implements ReservationService {
 
     // Flight class filtering strategies
@@ -83,6 +85,6 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
     }
 
     private void makeReservation(int rowIndex, List<Integer> toReserve) {
-        toReserve.forEach(seat -> System.out.printf("Seats in row %d, column %d are reserved.%n", rowIndex, seat));
+        toReserve.forEach(seat -> log.info("Seats in row {}, column {} are reserved.%n", rowIndex, seat));
     }
 }
