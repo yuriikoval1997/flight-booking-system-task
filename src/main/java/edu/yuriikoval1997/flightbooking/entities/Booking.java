@@ -1,5 +1,6 @@
 package edu.yuriikoval1997.flightbooking.entities;
 
+import java.util.List;
 import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,4 +22,7 @@ public class Booking {
 
     @Column(name = "price", nullable = false)
     private Short price;
+
+    @OneToMany(mappedBy = "booking")
+    private List<Seat> seats;
 }
