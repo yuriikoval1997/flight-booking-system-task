@@ -4,15 +4,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Stream<Integer> suitableSeats(int seatsInRow) {
-        return Stream.of(0, seatsInRow - 1);
+    public boolean isRowSuitable(int[] row) {
+        return IntStream.of(row[0], row[row.length - 1])
+            .anyMatch(this::isSeatAvailable);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Integer> findConsecutiveSeats(int[] row, int seatCount) {
         int corridor = row.length / 2;
@@ -25,7 +32,7 @@ public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
         List<Integer> forBooking = new ArrayList<>(seatCount);
         int i = 0;
         while (i < corridor && forBooking.size() < seatCount) {
-            if (row[i] == 0) {
+            if (this.isSeatAvailable(row[i])) {
                 forBooking.add(i);
             } else {
                 forBooking.clear();
@@ -42,7 +49,7 @@ public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
         List<Integer> forBooking = new ArrayList<>();
         int i = row.length - 1;
         while (i > corridor && forBooking.size() < seatCount) {
-            if (row[i] == 0) {
+            if (this.isSeatAvailable(row[i])) {
                 forBooking.add(i);
             } else {
                 forBooking.clear();

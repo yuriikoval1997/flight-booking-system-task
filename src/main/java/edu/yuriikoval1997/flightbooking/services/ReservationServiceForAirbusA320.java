@@ -12,10 +12,8 @@ import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
 import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +23,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReservationServiceForAirbusA320 implements ReservationService {
 
+    // Repositories
     private final AircraftRepository aircraftRepository;
     private final FlightRepository flightRepository;
     private final BookingRepository bookingRepository;
+
+    // Flight class filtering strategies
+    private final FlightClassStrategy businessClass = new BusinessClassStrategy();
+    private final FlightClassStrategy economyClass = new EconomyClassStrategy();
+
+    // Flight preference filtering strategy
+    private final SeatPreferenceStrategy noPreference = new NoPreferenceStrategy();
+    private final SeatPreferenceStrategy windowPreference = new WindowPreferenceStrategy();
+    private final SeatPreferenceStrategy aislePreference = new AislePreferenceStrategy();
 
     @Autowired
     public ReservationServiceForAirbusA320(AircraftRepository aircraftRepository,
@@ -38,23 +46,26 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         this.bookingRepository = bookingRepository;
     }
 
-    // Flight class filtering strategies
-    private final Supplier<Stream<Integer>> getBusinessClassRows = () -> IntStream.rangeClosed(0, 3).boxed();
-    private final Supplier<Stream<Integer>> getEconomyClassRows = () -> IntStream.rangeClosed(4, 38).boxed();
-
-    // Flight preference filtering strategy
-    private final SeatPreferenceStrategy noPreference = new NoPreferenceStrategy();
-    private final SeatPreferenceStrategy windowPreference = new WindowPreferenceStrategy();
-    private final SeatPreferenceStrategy aislePreference = new AislePreferenceStrategy();
-
-    private Supplier<Stream<Integer>> selectFlightClassStrategy(int bookingClass) {
+    /**
+     * Selects flight class filtering strategy.
+     *
+     * @param bookingClass - {@link edu.yuriikoval1997.flightbooking.entities.SeatClass}
+     * @return - {@link FlightClassStrategy} predicate that filters rows belonging to a specified class.
+     */
+    private FlightClassStrategy selectFlightClassStrategy(int bookingClass) {
         switch (bookingClass) {
-            case BUSINESS: return getBusinessClassRows;
-            case ECONOMY: return getEconomyClassRows;
+            case BUSINESS: return businessClass;
+            case ECONOMY: return economyClass;
             default: throw new IllegalArgumentException();
         }
     }
 
+    /**
+     * Selects seat preference filtering strategy.
+     *
+     * @param bookingPreference - {@link edu.yuriikoval1997.flightbooking.entities.SeatPreference}
+     * @return - {@link SeatPreferenceStrategy} predicate that filters rows belonging to a specified preference.
+     */
     private SeatPreferenceStrategy selectPreferenceSeatStrategy(int bookingPreference) {
         switch (bookingPreference) {
             case NONE: return noPreference;
@@ -69,10 +80,10 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
      */
     @Override
     public boolean reserveSeats(int seatCount, int bookingClass, int bookingPreference, int[][] seatPlan) {
-        Supplier<Stream<Integer>> classStrategy = selectFlightClassStrategy(bookingClass);
+        FlightClassStrategy classStrategy = selectFlightClassStrategy(bookingClass);
         SeatPreferenceStrategy preferenceStrategy = selectPreferenceSeatStrategy(bookingPreference);
 
-        return filterByClassAndPreference(seatPlan, classStrategy, preferenceStrategy::suitableSeats)
+        return filterByClassAndPreference(seatPlan, classStrategy::belongsToClass, preferenceStrategy::isRowSuitable)
             .flatMap(rowIndex -> Stream.of(preferenceStrategy.findConsecutiveSeats(seatPlan[rowIndex], seatCount))
                 .filter(preferenceStrategy::isNotEmpty)
                 .map(seatsForBooking -> {
@@ -84,13 +95,23 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             .orElse(false);
     }
 
+    /**
+     * Returns a {@link Stream<Integer>} of row indices that satisfy booking class and seat preference requirements.
+     *
+     * @param seatPlan - a two dimensional array containing a seat plan.
+     * @param classStrategy - {@link FlightClassStrategy#belongsToClass(int[])}
+     * @param preferenceStrategy - {@link SeatPreferenceStrategy#isRowSuitable(int[])}
+     * @return - a {@link Stream<Integer>} of row indices that passed through the given predicates.
+     */
     private Stream<Integer> filterByClassAndPreference(final int[][] seatPlan,
-                                                       final Supplier<Stream<Integer>> classStrategy,
-                                                       final IntFunction<Stream<Integer>> preferenceStrategy) {
-        return classStrategy.get()
-            .flatMap(rowIndex -> preferenceStrategy.apply(seatPlan[rowIndex].length)
-                .filter(seatIndex -> seatPlan[rowIndex][seatIndex] == 0)
-                .map(ignored -> rowIndex)
+                                                       final Predicate<int[]> classStrategy,
+                                                       final Predicate<int[]> preferenceStrategy) {
+        return Stream.iterate(0, i -> i < seatPlan.length, i -> i + 1)
+            .flatMap(
+                rowIndex -> Stream.of(seatPlan[rowIndex])
+                    .filter(classStrategy)
+                    .filter(preferenceStrategy)
+                    .map(ignored -> rowIndex)
             );
     }
 

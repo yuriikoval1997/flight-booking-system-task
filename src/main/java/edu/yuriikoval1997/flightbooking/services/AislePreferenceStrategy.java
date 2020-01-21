@@ -4,15 +4,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
 public class AislePreferenceStrategy implements SeatPreferenceStrategy {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Stream<Integer> suitableSeats(int seatsInRow) {
-        return Stream.of(seatsInRow/2 - 1, seatsInRow/2 + 1);
+    public boolean isRowSuitable(int[] row) {
+        return IntStream.of(row[row.length/2 - 1], row[row.length/2 + 1])
+            .anyMatch(this::isSeatAvailable);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<Integer> findConsecutiveSeats(int[] row, int seatCount) {
         int corridor = row.length / 2;
@@ -25,7 +32,7 @@ public class AislePreferenceStrategy implements SeatPreferenceStrategy {
         List<Integer> forBooking = new ArrayList<>(seatCount);
         int i = corridor - 1;
         while (i >= 0 && forBooking.size() < seatCount) {
-            if (row[i] == 0) {
+            if (this.isSeatAvailable(row[i])) {
                 forBooking.add(i);
             } else {
                 forBooking.clear();
@@ -42,7 +49,7 @@ public class AislePreferenceStrategy implements SeatPreferenceStrategy {
         List<Integer> forBooking = new ArrayList<>(seatCount);
         int i = corridor + 1;
         while (i < row.length && forBooking.size() < seatCount) {
-            if (row[i] == 0) {
+            if (this.isSeatAvailable(row[i])) {
                 forBooking.add(i);
             } else {
                 forBooking.clear();
