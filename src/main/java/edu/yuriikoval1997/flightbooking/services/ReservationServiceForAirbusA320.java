@@ -3,12 +3,24 @@ package edu.yuriikoval1997.flightbooking.services;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ReservationServiceForAirbusA320 implements ReservationService {
+
+    // Flight class filtering strategies
+    private static final Supplier<List<Integer>> GET_BUSINESS_CLASS_ROWS =
+        () -> IntStream.range(0, 4).boxed().collect(Collectors.toList());
+    private static final Supplier<List<Integer>> GET_ECONOMY_CLASS_ROWS =
+        () -> IntStream.range(4, 39).boxed().collect(Collectors.toList());
+
+    // Seat preference filtering strategies
     private static final IntFunction<List<Integer>> GET_WINDOW_SEATS = seatsInRow -> List.of(0, seatsInRow - 1);
     private static final IntFunction<List<Integer>> GET_AISLE_SEATS = seatsInRow -> List.of(seatsInRow/2 - 1, seatsInRow/2 + 1);
     private static final IntFunction<List<Integer>> NO_PREFERENCE =
@@ -16,15 +28,15 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             .boxed()
             .collect(Collectors.toList());
 
-    private Map<String, Integer> selectFlightClass(int bookingClass) {
+    private Supplier<List<Integer>> selectFlightClassStrategy(int bookingClass) {
         switch (bookingClass) {
-            case BUSINESS: return Map.of("start",0, "end", 4);
-            case ECONOMY: return Map.of("start", 4, "end", 39);
+            case BUSINESS: return GET_BUSINESS_CLASS_ROWS;
+            case ECONOMY: return GET_ECONOMY_CLASS_ROWS;
             default: throw new IllegalArgumentException();
         }
     }
 
-    private IntFunction<List<Integer>> selectPreferenceStrategy(int bookingPreference) {
+    private IntFunction<List<Integer>> selectPreferenceSeatStrategy(int bookingPreference) {
         switch (bookingPreference) {
             case NONE: return NO_PREFERENCE;
             case WINDOW: return GET_WINDOW_SEATS;
@@ -33,19 +45,13 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean reserveSeats(int seatCount, int bookingClass, int bookingPreference, int[][] seatPlan) {
-        var flightClass = selectFlightClass(bookingClass);
-        IntFunction<List<Integer>> strategy = selectPreferenceStrategy(bookingPreference);
-
-        // Filter by preference
+    private List<Integer> filterByPreference(final int[][] seatPlan,
+                                             final Supplier<List<Integer>> classStrategy,
+                                             final IntFunction<List<Integer>> preferenceStrategy) {
         List<Integer> list = new ArrayList<>();
-        for (int rowIndex = flightClass.get("start"); rowIndex < flightClass.get("end"); rowIndex++) {
+        for (int rowIndex : classStrategy.get()) {
             boolean available = false;
-            for (int seatIndex : strategy.apply(seatPlan[rowIndex].length)) {
+            for (int seatIndex : preferenceStrategy.apply(seatPlan[rowIndex].length)) {
                 if (seatPlan[rowIndex][seatIndex] == 0) {
                     available = true;
                     break;
@@ -55,13 +61,24 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
                 list.add(rowIndex);
             }
         }
-        // ========================================
+        return Collections.unmodifiableList(list);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean reserveSeats(int seatCount, int bookingClass, int bookingPreference, int[][] seatPlan) {
+        Supplier<List<Integer>> classStrategy = selectFlightClassStrategy(bookingClass);
+        IntFunction<List<Integer>> preferenceStrategy = selectPreferenceSeatStrategy(bookingPreference);
+
+        // Filter by preference
+        List<Integer> preferences = filterByPreference(seatPlan, classStrategy, preferenceStrategy);
 
         // find consecutive seats
-        for (int rowIndex : list) {
+        for (int rowIndex : preferences) {
             List<Integer> toReserve;
-            if (strategy.equals(GET_AISLE_SEATS)) {
+            if (preferenceStrategy.equals(GET_AISLE_SEATS)) {
                 toReserve = iterateFromAisle(seatPlan[rowIndex], seatCount);
             } else {
                 toReserve = iterateFromWindow(seatPlan[rowIndex], seatCount);
