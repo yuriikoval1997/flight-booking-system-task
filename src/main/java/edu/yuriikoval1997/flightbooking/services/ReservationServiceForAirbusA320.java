@@ -1,8 +1,16 @@
 package edu.yuriikoval1997.flightbooking.services;
 
+import edu.yuriikoval1997.flightbooking.entities.Aircraft;
+import edu.yuriikoval1997.flightbooking.entities.Booking;
+import edu.yuriikoval1997.flightbooking.entities.Flight;
+import edu.yuriikoval1997.flightbooking.entities.Seat;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
+import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
+import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
+import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,8 +18,22 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class ReservationServiceForAirbusA320 implements ReservationService {
+
+    private final AircraftRepository aircraftRepository;
+    private final FlightRepository flightRepository;
+    private final BookingRepository bookingRepository;
+
+    @Autowired
+    public ReservationServiceForAirbusA320(AircraftRepository aircraftRepository,
+                                           FlightRepository flightRepository,
+                                           BookingRepository bookingRepository) {
+        this.aircraftRepository = aircraftRepository;
+        this.flightRepository = flightRepository;
+        this.bookingRepository = bookingRepository;
+    }
 
     // Flight class filtering strategies
     private final Supplier<List<Integer>> getBusinessClassRows =
@@ -82,7 +104,26 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         return Collections.unmodifiableList(list);
     }
 
-    private void makeReservation(int rowIndex, List<Integer> toReserve) {
+    private void makeReservation(final int rowIndex, List<Integer> toReserve) {
         toReserve.forEach(seat -> System.out.printf("Seats in row %d, column %d are reserved.%n", rowIndex, seat));
+
+        Aircraft aircraft = new Aircraft("A320", (short) 210);
+        Long aircraftId = aircraftRepository.save(aircraft);
+        aircraft.setId(aircraftId);
+
+        Flight flight = new Flight(aircraft,
+            ZonedDateTime.now(),
+            ZonedDateTime.now().plusHours(1),
+            "Lviv", "Kyiv");
+
+        Long flightId = flightRepository.save(flight);
+        flight.setId(flightId);
+
+        List<Seat> seats = toReserve.stream()
+            .map(seatIndex -> new Seat((short) rowIndex, seatIndex.shortValue()))
+            .collect(Collectors.toList());
+
+        Booking booking = new Booking(flight, 300, seats);
+        bookingRepository.save(booking);
     }
 }

@@ -1,5 +1,6 @@
 package edu.yuriikoval1997.flightbooking.services;
 
+import edu.yuriikoval1997.flightbooking.entities.Booking;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
@@ -21,9 +22,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 class ReservationServiceForAirbusA320Test {
 
-    private static int[][] testSeatPlan;
+    @Autowired
+    AircraftRepository aircraftRepository;
 
     @Autowired
+    BookingRepository bookingRepository;
+
+    @Autowired
+    FlightRepository flightRepository;
+
+    private static int[][] testSeatPlan;
     private ReservationService reservationService;
 
     @BeforeAll
@@ -54,7 +62,7 @@ class ReservationServiceForAirbusA320Test {
 
     @BeforeEach
     void setUp() {
-//        reservationService = new ReservationServiceForAirbusA320();
+        reservationService = new ReservationServiceForAirbusA320(aircraftRepository, flightRepository, bookingRepository);
     }
 
     @Test
