@@ -2,7 +2,7 @@ package edu.yuriikoval1997.flightbooking.services;
 
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
-import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.WINDOW;
+import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
 import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
@@ -50,14 +50,14 @@ class ReservationServiceForAirbusA320Test {
     @Test
     @DisplayName("Reserve 2 seats in the business class")
     void reserveSeatsInBusinessClass() {
-        boolean res = reservationService.reserveSeats(2, BUSINESS, WINDOW, testSeatPlan);
+        boolean res = reservationService.reserveSeats(2, BUSINESS, NONE, testSeatPlan);
         assertTrue(res);
     }
 
     @Test
     @DisplayName("Reserve 2 seats in the economy class")
     void reserveSeatsInEconomyClass() {
-        boolean res = reservationService.reserveSeats(2, ECONOMY, WINDOW, testSeatPlan);
+        boolean res = reservationService.reserveSeats(2, ECONOMY, NONE, testSeatPlan);
         assertTrue(res);
     }
 }

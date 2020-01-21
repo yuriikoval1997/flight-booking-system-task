@@ -5,12 +5,16 @@ import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
 import java.util.*;
 import java.util.function.IntFunction;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ReservationServiceForAirbusA320 implements ReservationService {
     private static final IntFunction<List<Integer>> GET_WINDOW_SEATS = seatsInRow -> List.of(0, seatsInRow - 1);
     private static final IntFunction<List<Integer>> GET_AISLE_SEATS = seatsInRow -> List.of(seatsInRow/2 - 1, seatsInRow/2 + 1);
-    private static final IntFunction<List<Integer>> NO_PREFERENCE = seatsInRow -> List.of();
+    private static final IntFunction<List<Integer>> NO_PREFERENCE =
+        seatsInRow -> IntStream.range(0, seatsInRow)
+            .boxed()
+            .collect(Collectors.toList());
 
     private Map<String, Integer> selectFlightClass(int bookingClass) {
         switch (bookingClass) {
@@ -36,13 +40,6 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
     public boolean reserveSeats(int seatCount, int bookingClass, int bookingPreference, int[][] seatPlan) {
         var flightClass = selectFlightClass(bookingClass);
         IntFunction<List<Integer>> strategy = selectPreferenceStrategy(bookingPreference);
-
-        //========== temp logging ============
-//        Stream.of(seatPlan)
-//            .limit(4)
-//            .map(Arrays::toString)
-//            .forEach(System.out::println);
-        //====================================
 
         // Filter by preference
         List<Integer> list = new ArrayList<>();
@@ -85,7 +82,7 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         List<Integer> booked = new ArrayList<>(seatCount);
         int corridor = row.length / 2;
         int i = 0;
-        while (i < corridor && booked.size() <= seatCount) {
+        while (i < corridor && booked.size() < seatCount) {
             if (row[i] == 0) {
                 booked.add(i);
             } else {
@@ -95,13 +92,13 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         }
 
         if (booked.size() == seatCount) {
-            return booked;
+            return Collections.unmodifiableList(booked);
         } else {
             booked.clear();
         }
 
         i = row.length - 1;
-        while (i > corridor && booked.size() <= seatCount) {
+        while (i > corridor && booked.size() < seatCount) {
             if (row[i] == 0) {
                 booked.add(i);
             } else {
@@ -110,7 +107,7 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             i--;
         }
         if (booked.size() == seatCount) {
-            return booked;
+            return Collections.unmodifiableList(booked);
         }
         return Collections.emptyList();
     }
@@ -119,7 +116,7 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         List<Integer> booked = new ArrayList<>(seatCount);
         int corridor = row.length / 2;
         int i = corridor - 1;
-        while (i >= 0 && booked.size() <= seatCount) {
+        while (i >= 0 && booked.size() < seatCount) {
             if (row[i] == 0) {
                 booked.add(i);
             } else {
@@ -129,13 +126,13 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         }
 
         if (booked.size() == seatCount) {
-            return booked;
+            return Collections.unmodifiableList(booked);
         } else {
             booked.clear();
         }
 
         i = corridor + 1;
-        while (i < row.length && booked.size() <= seatCount) {
+        while (i < row.length && booked.size() < seatCount) {
             if (row[i] == 0) {
                 booked.add(i);
             } else {
@@ -144,7 +141,7 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             i++;
         }
         if (booked.size() == seatCount) {
-            return booked;
+            return Collections.unmodifiableList(booked);
         }
         return Collections.emptyList();
     }
