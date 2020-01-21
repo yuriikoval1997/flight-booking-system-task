@@ -25,6 +25,7 @@ public class NoPreferenceStrategy implements SeatPreferenceStrategy {
             } else {
                 booked.clear();
             }
+            i++;
         }
         if (booked.size() == seatCount) {
             return Collections.unmodifiableList(booked);
