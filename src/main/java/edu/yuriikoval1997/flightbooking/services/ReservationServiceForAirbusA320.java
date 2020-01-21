@@ -50,11 +50,11 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         SeatPreferenceStrategy preferenceStrategy = selectPreferenceSeatStrategy(bookingPreference);
 
         // Filter by preference
-        List<Integer> preferences = filterByClassAndPreference(seatPlan, classStrategy, preferenceStrategy::findSuitableRows);
+        List<Integer> suitableRows = filterByClassAndPreference(seatPlan, classStrategy, preferenceStrategy::suitableSeats);
 
         // find consecutive seats
-        for (int rowIndex : preferences) {
-            List<Integer> toReserve = preferenceStrategy.findSuitableSeats(seatPlan[rowIndex], seatCount);
+        for (int rowIndex : suitableRows) {
+            List<Integer> toReserve = preferenceStrategy.findConsecutiveSeats(seatPlan[rowIndex], seatCount);
             if (! toReserve.isEmpty()) {
                 makeReservation(rowIndex, toReserve);
                 return true;
