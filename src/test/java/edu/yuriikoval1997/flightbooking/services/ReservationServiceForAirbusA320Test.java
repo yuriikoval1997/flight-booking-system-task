@@ -1,15 +1,12 @@
 package edu.yuriikoval1997.flightbooking.services;
 
-import edu.yuriikoval1997.flightbooking.entities.Booking;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
-import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
+import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.AISLE;
 import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
 import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
 import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
-import edu.yuriikoval1997.flightbooking.repository.FlightRepositoryImpl;
 import java.util.Arrays;
-import org.hibernate.SessionFactory;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 class ReservationServiceForAirbusA320Test {

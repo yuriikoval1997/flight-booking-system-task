@@ -7,4 +7,8 @@ public interface SeatPreferenceStrategy {
     List<Integer> suitableSeats(int seatsInRow);
 
     List<Integer> findConsecutiveSeats(int[] row, int seatCount);
+
+    default boolean isNotEmpty(List<Integer> list) {
+        return ! list.isEmpty();
+    }
 }

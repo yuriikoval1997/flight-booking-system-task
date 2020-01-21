@@ -3,6 +3,7 @@ package edu.yuriikoval1997.flightbooking.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
 
@@ -14,15 +15,9 @@ public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
     @Override
     public List<Integer> findConsecutiveSeats(int[] row, int seatCount) {
         int corridor = row.length / 2;
-        List<Integer> left = searchLeft(row, seatCount, corridor);
-        if (left.size() == seatCount) {
-            return left;
-        }
-        List<Integer> right = searchRight(row, seatCount, corridor);
-        if (right.size() == seatCount) {
-            return right;
-        }
-        return Collections.emptyList();
+        return Optional.of(searchLeft(row, seatCount, corridor))
+            .filter(this::isNotEmpty)
+            .orElse(searchRight(row, seatCount, corridor));
     }
 
     private List<Integer> searchLeft(int[] row, int seatCount, int corridor) {
@@ -36,7 +31,7 @@ public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
             }
             i++;
         }
-        if (forBooking.contains(0)) {
+        if (forBooking.contains(0) && forBooking.size() == seatCount) {
             return Collections.unmodifiableList(forBooking);
         }
         return Collections.emptyList();
@@ -53,7 +48,7 @@ public class WindowPreferenceStrategy implements SeatPreferenceStrategy {
             }
             i--;
         }
-        if (forBooking.contains(row.length - 1)) {
+        if (forBooking.contains(row.length - 1) && forBooking.size() == seatCount) {
             return Collections.unmodifiableList(forBooking);
         }
         return Collections.emptyList();

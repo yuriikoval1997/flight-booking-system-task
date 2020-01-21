@@ -18,6 +18,7 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,15 +79,16 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         // Filter by preference
         List<Integer> suitableRows = filterByClassAndPreference(seatPlan, classStrategy, preferenceStrategy::suitableSeats);
 
-        // find consecutive seats
-        for (int rowIndex : suitableRows) {
-            List<Integer> toReserve = preferenceStrategy.findConsecutiveSeats(seatPlan[rowIndex], seatCount);
-            if (! toReserve.isEmpty()) {
-                makeReservation(rowIndex, toReserve);
-                return true;
-            }
-        }
-        return false;
+        return suitableRows.stream()
+            .flatMap(rowIndex -> Stream.of(preferenceStrategy.findConsecutiveSeats(seatPlan[rowIndex], seatCount))
+                .filter(preferenceStrategy::isNotEmpty)
+                .map(seatsForBooking -> {
+                    makeReservation(rowIndex, seatsForBooking);
+                    return true;
+                })
+            )
+            .findAny()
+            .orElse(false);
     }
 
     private List<Integer> filterByClassAndPreference(final int[][] seatPlan,
@@ -109,7 +111,7 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
     }
 
     private void makeReservation(final int rowIndex, List<Integer> toReserve) {
-        toReserve.forEach(seat -> log.info("Seats in row {}, column {} are reserved.%n", rowIndex, seat));
+        toReserve.forEach(seat -> log.info("Seat in row {}, column {} is reserved.", rowIndex, seat));
 
         Aircraft aircraft = new Aircraft("A320", (short) 210);
         Long aircraftId = aircraftRepository.save(aircraft);
