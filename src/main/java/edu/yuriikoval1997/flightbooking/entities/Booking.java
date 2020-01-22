@@ -4,6 +4,7 @@ import java.util.List;
 import javax.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 
 @Entity
 @Data
@@ -21,12 +22,12 @@ public class Booking {
     @Column(name = "price", nullable = false)
     private Integer price;
 
-    @OneToMany(mappedBy = "booking")
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @Cascade(org.hibernate.annotations.CascadeType.PERSIST)
     private List<Seat> seats;
 
-    public Booking(Flight flight, Integer price, List<Seat> seats) {
+    public Booking(Flight flight, Integer price) {
         this.flight = flight;
         this.price = price;
-        this.seats = seats;
     }
 }

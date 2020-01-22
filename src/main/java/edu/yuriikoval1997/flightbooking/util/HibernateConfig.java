@@ -55,6 +55,8 @@ public class HibernateConfig {
             "hibernate.hbm2ddl.auto", "update");
         hibernateProperties.setProperty(
             "hibernate.dialect", "org.hibernate.dialect.PostgreSQL9Dialect");
+        hibernateProperties.setProperty("hibernate.show_sql", "true");
+        hibernateProperties.setProperty("hibernate.format_sql", "true");
         return hibernateProperties;
     }
 }

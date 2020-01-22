@@ -119,11 +119,13 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         Long flightId = flightRepository.save(flight);
         flight.setId(flightId);
 
+
+        Booking booking = new Booking(flight, 300);
         List<Seat> seats = toReserve.stream()
-            .map(seatIndex -> new Seat((short) rowIndex, seatIndex.shortValue()))
+            .map(seatIndex -> new Seat((short) rowIndex, seatIndex.shortValue(), booking))
             .collect(Collectors.toList());
 
-        Booking booking = new Booking(flight, 300, seats);
+        booking.setSeats(seats);
         bookingRepository.save(booking);
     }
 }
