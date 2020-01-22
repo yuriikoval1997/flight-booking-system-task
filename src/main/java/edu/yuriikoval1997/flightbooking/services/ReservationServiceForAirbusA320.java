@@ -7,9 +7,7 @@ import edu.yuriikoval1997.flightbooking.entities.Seat;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
-import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
-import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
-import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
+import edu.yuriikoval1997.flightbooking.repository.CommonRepository;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,14 +24,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReservationServiceForAirbusA320 implements ReservationService {
 
-    private final AircraftRepository aircraftRepository;
-    private final FlightRepository flightRepository;
-    private final BookingRepository bookingRepository;
+    private final CommonRepository<Aircraft> aircraftRepository;
+    private final CommonRepository<Flight> flightRepository;
+    private final CommonRepository<Booking> bookingRepository;
 
     @Autowired
-    public ReservationServiceForAirbusA320(AircraftRepository aircraftRepository,
-                                           FlightRepository flightRepository,
-                                           BookingRepository bookingRepository) {
+    public ReservationServiceForAirbusA320(CommonRepository<Aircraft> aircraftRepository,
+                                           CommonRepository<Flight> flightRepository,
+                                           CommonRepository<Booking> bookingRepository) {
         this.aircraftRepository = aircraftRepository;
         this.flightRepository = flightRepository;
         this.bookingRepository = bookingRepository;
