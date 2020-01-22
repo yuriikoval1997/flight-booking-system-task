@@ -80,6 +80,7 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
      */
     @Override
     public boolean reserveSeats(int seatCount, int bookingClass, int bookingPreference, int[][] seatPlan) {
+        checkSeatPlan(seatPlan);
         FlightClassStrategy classStrategy = selectFlightClassStrategy(bookingClass);
         SeatPreferenceStrategy preferenceStrategy = selectPreferenceSeatStrategy(bookingPreference);
 
@@ -93,6 +94,19 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             )
             .findAny()
             .orElse(false);
+    }
+
+    /**
+     * Checks whether a given seat plan is valid.
+     *
+     * @param seatPlan - a two dimensional array containing a seat plan.
+     * @throws IllegalArgumentException if the corridor is not at the center.
+     */
+    private void checkSeatPlan(int[][] seatPlan) {
+        boolean valid = Stream.of(seatPlan).allMatch(row -> row[row.length/2] == -1);
+        if (! valid) {
+            throw new IllegalArgumentException("The corridor always has to be at the center!");
+        }
     }
 
     /**
