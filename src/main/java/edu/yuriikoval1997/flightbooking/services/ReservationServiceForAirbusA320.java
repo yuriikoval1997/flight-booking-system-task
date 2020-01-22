@@ -88,7 +88,7 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             .flatMap(rowIndex -> Stream.of(preferenceStrategy.findConsecutiveSeats(seatPlan[rowIndex], seatCount))
                 .filter(preferenceStrategy::isNotEmpty)
                 .map(seatsForBooking -> {
-                    makeReservation(rowIndex, seatsForBooking);
+                    makeReservation(rowIndex, seatsForBooking, seatPlan);
                     return true;
                 })
             )
@@ -129,8 +129,9 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
             );
     }
 
-    private void makeReservation(final int rowIndex, List<Integer> toReserve) {
+    private void makeReservation(final int rowIndex, List<Integer> toReserve, int[][] seatPlan) {
         toReserve.forEach(seat -> log.info("Seat in row {}, column {} is reserved.", rowIndex, seat));
+        toReserve.forEach(seatIndex -> seatPlan[rowIndex][seatIndex] = 1);
 
         Aircraft aircraft = new Aircraft("A320", (short) 210);
         Long aircraftId = aircraftRepository.save(aircraft);
