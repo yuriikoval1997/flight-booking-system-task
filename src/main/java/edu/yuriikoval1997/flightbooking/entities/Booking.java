@@ -22,8 +22,8 @@ public class Booking {
     @Column(name = "price", nullable = false)
     private Integer price;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @Cascade(org.hibernate.annotations.CascadeType.PERSIST)
+    @OneToMany(mappedBy = "booking")
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private List<Seat> seats;
 
     public Booking(Flight flight, Integer price) {
