@@ -1,7 +1,9 @@
 package edu.yuriikoval1997.flightbooking.repository;
 
 import edu.yuriikoval1997.flightbooking.constants.ExceptionConstants;
+import edu.yuriikoval1997.flightbooking.exceptions.NotDeletedException;
 import edu.yuriikoval1997.flightbooking.exceptions.NotFoundException;
+import edu.yuriikoval1997.flightbooking.exceptions.NotSavedException;
 import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -24,7 +26,8 @@ abstract class GenericRepository<T> implements CommonRepository<T> {
     public T findById(Long id) {
         try (Session session = sessionFactory.openSession()) {
             return Optional.of(session.get(typeParameterClass, id))
-                .orElseThrow(() -> new NotFoundException(ExceptionConstants.AIRCRAFT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(
+                    typeParameterClass.getName() + ExceptionConstants.NOT_FOUND));
         }
     }
 
@@ -34,13 +37,18 @@ abstract class GenericRepository<T> implements CommonRepository<T> {
     @Override
     public Long save(T entity) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Long id = (Long) session.save(entity);
-            session.getTransaction().commit();
-            return id;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            try {
+                session.beginTransaction();
+                Long id = (Long) session.save(entity);
+                session.getTransaction().commit();
+                return id;
+            } catch (Exception e) {
+                if (session != null) {
+                    session.getTransaction().rollback();
+                }
+                throw new NotSavedException(
+                    typeParameterClass.getName() + ExceptionConstants.NOT_SAVED);
+            }
         }
     }
 
@@ -50,11 +58,17 @@ abstract class GenericRepository<T> implements CommonRepository<T> {
     @Override
     public void delete(T entity) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            session.delete(entity);
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                session.beginTransaction();
+                session.delete(entity);
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                if(session != null) {
+                    session.getTransaction().rollback();
+                }
+                throw new NotDeletedException(
+                    typeParameterClass.getSimpleName() + ExceptionConstants.NOT_DELETED);
+            }
         }
     }
 
@@ -64,12 +78,18 @@ abstract class GenericRepository<T> implements CommonRepository<T> {
     @Override
     public void deleteById(Long id) {
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            T entity = session.load(typeParameterClass, id);
-            session.delete(entity);
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                session.beginTransaction();
+                T entity = session.load(typeParameterClass, id);
+                session.delete(entity);
+                session.getTransaction().commit();
+            } catch (Exception e) {
+                if(session != null) {
+                    session.getTransaction().rollback();
+                }
+                throw new NotDeletedException(
+                    typeParameterClass.getSimpleName() + ExceptionConstants.NOT_DELETED);
+            }
         }
     }
 }

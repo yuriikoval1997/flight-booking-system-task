@@ -1,11 +1,12 @@
 package edu.yuriikoval1997.flightbooking.entities;
 
 import javax.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(of = {"seatRow", "seatCol"})
 @NoArgsConstructor
 @Table(name = "seats")
 public class Seat {

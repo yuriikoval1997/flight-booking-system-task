@@ -2,12 +2,12 @@ package edu.yuriikoval1997.flightbooking.entities;
 
 import java.util.List;
 import javax.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Cascade;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "bookings")
 public class Booking {
