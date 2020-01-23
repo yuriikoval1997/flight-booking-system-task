@@ -15,12 +15,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class HibernateConfig {
 
-    @Value("${username}")
-    private String username;
-    @Value("${password}")
-    private String password;
-    @Value("${url}")
+    @Value("${DATASOURCE_URL}")
     private String url;
+
+    @Value("${DATASOURCE_USER}")
+    private String username;
+
+    @Value("${DATASOURCE_PASSWORD}")
+    private String password;
 
     @Bean
     public LocalSessionFactoryBean sessionFactory() {
