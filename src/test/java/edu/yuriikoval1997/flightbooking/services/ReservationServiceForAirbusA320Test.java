@@ -1,11 +1,12 @@
 package edu.yuriikoval1997.flightbooking.services;
 
+import edu.yuriikoval1997.flightbooking.entities.Aircraft;
+import edu.yuriikoval1997.flightbooking.entities.Booking;
+import edu.yuriikoval1997.flightbooking.entities.Flight;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
-import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.AISLE;
-import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
-import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
-import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
+import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
+import edu.yuriikoval1997.flightbooking.repository.CommonRepository;
 import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,13 +20,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ReservationServiceForAirbusA320Test {
 
     @Autowired
-    AircraftRepository aircraftRepository;
+    CommonRepository<Aircraft> aircraftRepository;
 
     @Autowired
-    BookingRepository bookingRepository;
+    CommonRepository<Booking> bookingRepository;
 
     @Autowired
-    FlightRepository flightRepository;
+    CommonRepository<Flight> flightRepository;
 
     private static int[][] testSeatPlan;
     private ReservationService reservationService;

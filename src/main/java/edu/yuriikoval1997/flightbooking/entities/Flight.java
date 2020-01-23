@@ -3,11 +3,12 @@ package edu.yuriikoval1997.flightbooking.entities;
 import java.time.ZonedDateTime;
 import java.util.List;
 import javax.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(of = {"departure", "arrival", "from", "to"})
 @NoArgsConstructor
 @Table(name = "flights")
 public class Flight {

@@ -2,11 +2,12 @@ package edu.yuriikoval1997.flightbooking.entities;
 
 import java.util.List;
 import javax.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.Cascade;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "bookings")
 public class Booking {
@@ -22,11 +23,11 @@ public class Booking {
     private Integer price;
 
     @OneToMany(mappedBy = "booking")
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private List<Seat> seats;
 
-    public Booking(Flight flight, Integer price, List<Seat> seats) {
+    public Booking(Flight flight, Integer price) {
         this.flight = flight;
         this.price = price;
-        this.seats = seats;
     }
 }

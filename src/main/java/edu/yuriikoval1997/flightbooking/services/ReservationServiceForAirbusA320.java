@@ -7,14 +7,10 @@ import edu.yuriikoval1997.flightbooking.entities.Seat;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.ECONOMY;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.*;
-import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
-import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
-import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
 import java.time.ZonedDateTime;
+import edu.yuriikoval1997.flightbooking.repository.CommonRepository;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +18,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class ReservationServiceForAirbusA320 implements ReservationService {
-
-    // Repositories
-    private final AircraftRepository aircraftRepository;
-    private final FlightRepository flightRepository;
-    private final BookingRepository bookingRepository;
+    private final CommonRepository<Aircraft> aircraftRepository;
+    private final CommonRepository<Flight> flightRepository;
+    private final CommonRepository<Booking> bookingRepository;
 
     // Flight class filtering strategies
     private final FlightClassStrategy businessClass = new BusinessClassStrategy();
@@ -38,9 +32,9 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
     private final SeatPreferenceStrategy aislePreference = new AislePreferenceStrategy();
 
     @Autowired
-    public ReservationServiceForAirbusA320(AircraftRepository aircraftRepository,
-                                           FlightRepository flightRepository,
-                                           BookingRepository bookingRepository) {
+    public ReservationServiceForAirbusA320(CommonRepository<Aircraft> aircraftRepository,
+                                           CommonRepository<Flight> flightRepository,
+                                           CommonRepository<Booking> bookingRepository) {
         this.aircraftRepository = aircraftRepository;
         this.flightRepository = flightRepository;
         this.bookingRepository = bookingRepository;
@@ -145,11 +139,13 @@ public class ReservationServiceForAirbusA320 implements ReservationService {
         Long flightId = flightRepository.save(flight);
         flight.setId(flightId);
 
+
+        Booking booking = new Booking(flight, 300);
         List<Seat> seats = toReserve.stream()
-            .map(seatIndex -> new Seat((short) rowIndex, seatIndex.shortValue()))
+            .map(seatIndex -> new Seat((short) rowIndex, seatIndex.shortValue(), booking))
             .collect(Collectors.toList());
 
-        Booking booking = new Booking(flight, 300, seats);
+        booking.setSeats(seats);
         bookingRepository.save(booking);
     }
 }
