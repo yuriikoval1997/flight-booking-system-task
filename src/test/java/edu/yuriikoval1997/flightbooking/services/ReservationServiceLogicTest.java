@@ -5,9 +5,7 @@ import edu.yuriikoval1997.flightbooking.entities.Booking;
 import edu.yuriikoval1997.flightbooking.entities.Flight;
 import static edu.yuriikoval1997.flightbooking.entities.SeatClass.BUSINESS;
 import static edu.yuriikoval1997.flightbooking.entities.SeatPreference.NONE;
-import edu.yuriikoval1997.flightbooking.repository.AircraftRepository;
-import edu.yuriikoval1997.flightbooking.repository.BookingRepository;
-import edu.yuriikoval1997.flightbooking.repository.FlightRepository;
+import edu.yuriikoval1997.flightbooking.repository.CommonRepository;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,13 +21,13 @@ public class ReservationServiceLogicTest {
     private ReservationService reservationService;
 
     @Mock
-    AircraftRepository aircraftRepository;
+    CommonRepository<Aircraft> aircraftRepository;
 
     @Mock
-    BookingRepository bookingRepository;
+    CommonRepository<Booking> bookingRepository;
 
     @Mock
-    FlightRepository flightRepository;
+    CommonRepository<Flight> flightRepository;
 
     @BeforeEach
     void init() {
